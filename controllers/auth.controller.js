@@ -1,6 +1,7 @@
 import User from "../models/user.schema";
 import asyncHandler from "../services/asyncHandler";
 import CustomError from "../utils/customError";
+import mailHelper from "../utils/mailHelper";
 
 export const cookiOptions = {
   expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 100),
@@ -9,15 +10,12 @@ export const cookiOptions = {
 };
 
 /***************************************************
-
-* @SIGNUP
-* @route http://localhost:4000/api/auth/signup
-* @description User signup controller for creating a new user
-* @parameters name, email, password
-* @return User Object
-
-****************************************************/
-
+ * @SIGNUP
+ * @route http://localhost:4000/api/auth/signup
+ * @description User signup controller for creating a new user
+ * @parameters name, email, password
+ * @return User Object
+ ****************************************************/
 export const signUp = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -51,15 +49,12 @@ export const signUp = asyncHandler(async (req, res) => {
 });
 
 /***************************************************
-
-* @LOGIN
-* @route http://localhost:4000/api/auth/login
-* @description User signIn controller for login a user
-* @parameters email, password
-* @return User Object
-
-****************************************************/
-
+ * @LOGIN
+ * @route http://localhost:4000/api/auth/login
+ * @description User signIn controller for login a user
+ * @parameters email, password
+ * @return User Object
+ ****************************************************/
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -90,15 +85,12 @@ export const login = asyncHandler(async (req, res) => {
 });
 
 /***************************************************
-
-* @LOGOUT
-* @route http://localhost:4000/api/auth/logout
-* @description User logout by clearing user cookies
-* @parameters 
-* @return Success message
-
-****************************************************/
-
+ * @LOGOUT
+ * @route http://localhost:4000/api/auth/logout
+ * @description User logout by clearing user cookies
+ * @parameters
+ * @return Success message
+ ****************************************************/
 export const logout = asyncHandler(async (_req, res) => {
   // res.clearCookie()
   res.cookie("token", null, {
@@ -110,3 +102,53 @@ export const logout = asyncHandler(async (_req, res) => {
     message: "Logged Out",
   });
 });
+
+/***************************************************
+ * @FORGOT_PASSWORD
+ * @route http://localhost:4000/api/auth/password/forgot
+ * @description User will submit email and we will generat a token
+ * @parameters emial
+ * @return Success message - email send
+ ****************************************************/
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  // check email for null
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new CustomError("User not found", 404);
+  }
+
+  const resetToken = user.generateForgotPasswordToken();
+
+  await user.save({ validateBeforeSave: false });
+
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/auth/password/reset/${resetToken}`;
+
+  const text = `Your password reset url is
+  \n\n ${resetUrl} \n\n`;
+
+  try {
+    await mailHelper({
+      emial: user.email,
+      subject: "Password reset email for website",
+      text: text,
+    });
+    res.status(200).json({
+      success: true,
+      message: `Email sen to ${user.email}`,
+    });
+  } catch (error) {
+    // roll back -clear fields and save
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordExpiry = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    throw new CustomError(err.message || "Email send failure", 500);
+  }
+});
+//  3.21.00
