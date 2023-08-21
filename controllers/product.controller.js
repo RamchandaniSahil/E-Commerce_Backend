@@ -83,4 +83,43 @@ export const addProduct = asyncHandler(async (req, res) => {
   });
 });
 
-// 51.00
+/***************************************************
+ * @GET_ALL_PRODUCT
+ * @route http://localhost:4000/api/product
+ * @description Controller used for gatting all products details
+ * @description User and admin can get all the products
+ * @return Products Object
+ ****************************************************/
+export const getAllProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find({});
+
+  if (!products) {
+    throw new CustomError("No product was found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    products,
+  });
+});
+
+/***************************************************
+ * @GET_PRODUCT_BY_ID
+ * @route http://localhost:4000/api/product
+ * @description Controller used for gatting single product details
+ * @description User and admin can get single product details
+ * @return Products Object
+ ****************************************************/
+export const getProductById = asyncHandler(async (req, res) => {
+  const { id: productId } = req.params;
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    throw new CustomError("No product was found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    product,
+  });
+});
