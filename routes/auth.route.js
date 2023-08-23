@@ -10,12 +10,12 @@ const {
 } = require("../controllers/auth.controller");
 const router = express.Router();
 
-router.get("/api/auth", authHome);
-router.post("/api/auth/signup", signUp);
-router.post("/api/auth/login", login);
-router.post("/api/auth/logout", logout);
-router.post("/api/auth/password/forgot", forgotPassword);
-router.post("/api/auth/password/reset/:reserToken", resetPassword);
-router.post("/api/auth/profile", getProfile);
+router.get("/", authHome);
+router.post("/signup", signUp);
+router.post("/login", login);
+router.post("/logout", logout);
+router.post("/password/forgot", forgotPassword);
+router.post("/password/reset/:reserToken", resetPassword);
+router.post("/profile", getProfile);
 
 module.exports = router;

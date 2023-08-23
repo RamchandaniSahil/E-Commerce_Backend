@@ -1,15 +1,15 @@
-import Collection from "../models/collection.schema";
-import asyncHandler from "../services/asyncHandler";
-import CustomError from "../utils/customError";
+const Collection = require("../models/collection.schema");
+const asyncHandler = require("../services/asyncHandler");
+const CustomError = require("../utils/customError");
 
 /***************************************************
  * @Create_COLLECTION
- * @route http://localhost:4000/api/collection
+ * @route http://localhost:4000/api/collection/create
  * @description User signup controller for creating a new user
  * @parameters name, email, password
  * @return User Object
  ****************************************************/
-export const createCollerction = asyncHandler(async (req, res) => {
+exports.createCollerction = asyncHandler(async (req, res) => {
   // Take name from frontend
   const { name } = req.body;
 
@@ -32,12 +32,12 @@ export const createCollerction = asyncHandler(async (req, res) => {
 
 /***************************************************
  * @Update_COLLECTION
- * @route http://localhost:4000/api/collection
+ * @route http://localhost:4000/api/collection/update/:id
  * @description User signup controller for creating a new user
  * @parameters name, email, password
  * @return User Object
  ****************************************************/
-export const updateCollection = asyncHandler(async (req, res) => {
+exports.updateCollection = asyncHandler(async (req, res) => {
   // exixting value to be updated
   const { id: collectionId } = req.params;
 
@@ -48,7 +48,7 @@ export const updateCollection = asyncHandler(async (req, res) => {
     throw new CustomError("Collection name is required", 400);
   }
 
-  let updatedCollection = await Collection.findByIdAndUpdate(
+  let update = await Collection.findByIdAndUpdate(
     collectionId,
     {
       name,
@@ -58,7 +58,7 @@ export const updateCollection = asyncHandler(async (req, res) => {
       runValidators: true,
     }
   );
-  if (!updateCollection) {
+  if (!update) {
     throw new CustomError("Collection not found", 400);
   }
 
@@ -66,18 +66,18 @@ export const updateCollection = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Collection updated successfully",
-    updateCollection,
+    update,
   });
 });
 
 /***************************************************
  * @Delete_COLLECTION
- * @route http://localhost:4000/api/collection
+ * @route http://localhost:4000/api/collection/delete/:id
  * @description User signup controller for creating a new user
  * @parameters name, email, password
  * @return User Object
  ****************************************************/
-const deleteCollection = asyncHandler(async (req, res) => {
+exports.deleteCollection = asyncHandler(async (req, res) => {
   const { id: collectionId } = req.params;
 
   const collectionToDelete = await Collection.findByIdAndDelete(collectionId);
@@ -85,7 +85,7 @@ const deleteCollection = asyncHandler(async (req, res) => {
   if (!collectionToDelete) {
     throw new CustomError("Collection not found", 400);
   }
-  collectionToDelete.remove();
+  // collectionToDelete.remove();
   res.status(200).json({
     success: true,
     message: "Collection delete successfully",
@@ -99,7 +99,7 @@ const deleteCollection = asyncHandler(async (req, res) => {
  * @parameters name, email, password
  * @return User Object
  ****************************************************/
-export const getAllCollection = asyncHandler(async (req, res) => {
+exports.getAllCollection = asyncHandler(async (req, res) => {
   const collections = await Collection.find();
 
   if (!collections) {
