@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
-import AuthRoles from "../utils/authRoles";
-import bcrypt from "bcryptjs";
-import JWT from "jsonwebtoken";
-import crypto from "crypto";
-import config from "../config/index";
+const mongoose = require("mongoose");
+const AuthRoles = require("../utils/authRoles");
+const bcrypt = require("bcryptjs");
+const JWT = require("jsonwebtoken");
+const crypto = require("crypto");
+const config = require("../config/index");
 
 const userSchema = mongoose.Schema(
   {
@@ -59,7 +59,7 @@ userSchema.methods = {
       },
       config.JWT_SECRET,
       {
-        expiresIn: config.JWT_SECRET,
+        expiresIn: config.JWT_EXPIRY,
       }
     );
   },
@@ -80,4 +80,4 @@ userSchema.methods = {
   },
 };
 
-export default mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);

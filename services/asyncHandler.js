@@ -25,4 +25,4 @@ function asyncHandler(fn) {
 }
 */
 
-export default asyncHandler;
+module.exports = asyncHandler;

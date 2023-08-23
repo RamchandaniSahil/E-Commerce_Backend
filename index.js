@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import app from "./app";
-import config from "./config/index";
+const mongoose = require("mongoose");
+const app = require("./app");
+const config = require("./config/index");
 
 // creatr a function
 // run a function

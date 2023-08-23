@@ -1,14 +1,23 @@
-import User from "../models/user.schema";
-import asyncHandler from "../services/asyncHandler";
-import CustomError from "../utils/customError";
-import mailHelper from "../utils/mailHelper";
-import crypto from "crypto";
+const User = require("../models/user.schema");
+const asyncHandler = require("../services/asyncHandler");
+const CustomError = require("../utils/customError");
+const mailHelper = require("../utils/mailHelper");
+const crypto = require("crypto");
 
-export const cookiOptions = {
-  expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 100),
+const cookiOptions = {
+  expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
   httpOnly: true,
   //could be in a sepreat file in utils
 };
+
+/***************************************************
+ * @HOME
+ * @route http://localhost:4000/api/auth
+ * @description Homepage for Login and Signup
+ ****************************************************/
+exports.authHome = asyncHandler(async (req, res) => {
+  res.status(200).send("User Auth Working Properly");
+});
 
 /***************************************************
  * @SIGNUP
@@ -17,7 +26,7 @@ export const cookiOptions = {
  * @parameters name, email, password
  * @return User Object
  ****************************************************/
-export const signUp = asyncHandler(async (req, res) => {
+exports.signUp = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -37,7 +46,7 @@ export const signUp = asyncHandler(async (req, res) => {
   });
 
   const token = user.getJwtToken();
-  console.log(user);
+  // console.log(user);
   user.password = undefined;
 
   res.cookie("token", token, cookiOptions);
@@ -56,7 +65,7 @@ export const signUp = asyncHandler(async (req, res) => {
  * @parameters email, password
  * @return User Object
  ****************************************************/
-export const login = asyncHandler(async (req, res) => {
+exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -92,7 +101,7 @@ export const login = asyncHandler(async (req, res) => {
  * @parameters
  * @return Success message
  ****************************************************/
-export const logout = asyncHandler(async (_req, res) => {
+exports.logout = asyncHandler(async (_req, res) => {
   // res.clearCookie()
   res.cookie("token", null, {
     expires: new Date(Date.now()),
@@ -111,7 +120,7 @@ export const logout = asyncHandler(async (_req, res) => {
  * @parameters emial
  * @return Success message - email send
  ****************************************************/
-export const forgotPassword = asyncHandler(async (req, res) => {
+exports.forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
   // check email for null
 
@@ -160,7 +169,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
  * @parameters token from url, password and confirmPassword
  * @return User object
  ****************************************************/
-export const resetPassword = asyncHandler(async (req, res) => {
+exports.resetPassword = asyncHandler(async (req, res) => {
   const { token: resetToken } = req.params;
   const { password, confirmPassword } = req.body;
 
@@ -208,7 +217,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
  * @parameters
  * @return User object
  ****************************************************/
-export const getProfile = asyncHandler(async (req, res) => {
+exports.getProfile = asyncHandler(async (req, res) => {
   const { user } = req;
   if (!user) {
     throw new CustomError("User not found", 404);

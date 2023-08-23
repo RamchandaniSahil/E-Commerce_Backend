@@ -4,7 +4,7 @@
   "description": "This is backend part of E-Commerce Project.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,8 @@
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.3",
     "morgan": "^1.10.0",
-    "nodemailer": "^6.9.4"
+    "nodemailer": "^6.9.4",
+    "razorpay": "^2.9.2",
+    "router": "^1.3.8"
   }
 }

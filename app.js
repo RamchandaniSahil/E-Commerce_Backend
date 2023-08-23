@@ -1,7 +1,8 @@
-import express from "express";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import morgan from "morgan";
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const morgan = require("morgan");
+const authRoute = require("./routes/auth.route");
 
 const app = express();
 
@@ -12,5 +13,6 @@ app.use(cookieParser());
 
 // morgon logger
 app.use(morgan("tiny"));
+app.use("/", authRoute);
 
-export default app;
+module.exports = app;
