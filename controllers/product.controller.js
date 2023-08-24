@@ -1,36 +1,37 @@
-import Product from "../models/product.schema";
-import formidable from "formidable";
-import fs from "fs";
-import { deleteFile, uploadFile } from "../services.imageUpload";
-import Mongoose from "mongoose";
-import asyncHandler from "../services/asyncHandler";
-import CustomError from "../utils/customError";
-import config from "../config/index";
+const Product = require("../models/product.schema");
+const formidable = require("formidable");
+const fs = require("fs");
+const { deleteFile, uploadFile } = require("../services/imageUpload");
+const Mongoose = require("mongoose");
+const asyncHandler = require("../services/asyncHandler");
+const CustomError = require("../utils/customError");
+const config = require("../config/index");
 
 /***************************************************
  * @ADD_PRODUCT
- * @route http://localhost:4000/api/product
+ * @route http://localhost:4000/api/product/add
  * @description Controller used for creating new product
  * @description Only admin can create the coupon
  * @description Uses Coludinary
  * @return Product Object
  ****************************************************/
 
-export const addProduct = asyncHandler(async (req, res) => {
-  const form = formidable({
-    multiples: true,
-    keepExtensions: true,
-  });
+exports.addProduct = asyncHandler(async (req, res) => {
+  // const form = formidable({
+  //   multiples: true,
+  //   keepExtensions: true,
+  // });
+
+  const form = new formidable.IncomingForm();
 
   form.parse(req, async function (err, fields, files) {
     try {
+      // console.log("fields = ", fields.price.toString());
+      // console.log("files = ", files);
       if (err) {
-        throw new CustomError(err.message || "Something went wrong", 500);
+        throw new CustomError(err || "Something went wrong", 500);
       }
-      // const productId = new Mongoose.Types.ObjectId().toHexString();
-      //   console.log(fields, files);
 
-      // Check for fields
       if (
         !fields.name ||
         !fields.price ||
@@ -40,39 +41,31 @@ export const addProduct = asyncHandler(async (req, res) => {
         throw new CustomError("Please fill all the details", 500);
       }
 
-      // handling images
-      let imgArrayRes = Promise.all(
-        Object.keys(files).map(async (fileKey, index) => {
-          const element = files[fileKey];
+      let file = files.photos;
+      //   console.log("File = ", file);
+      let products;
 
-          const data = fs.readFileSync(element.filePath);
+      for (let i = 0; i < file.length; i++) {
+        const path = file[i].filepath;
+        // console.log("PATH = ", path);
+        const upload = await uploadFile(`${path}`);
+        // console.log("upload = ", upload);
+        products = await Product.create({
+          name: fields.name.toString(),
+          price: fields.price.toString(),
+          description: fields.description.toString(),
+          photos: { secure_url: upload },
+          stock: fields.stock.toString(),
+          collectionId: fields.collectionId.toString(),
+        });
+      }
 
-          const upload = await uploadFile({
-            // bucketName: config.BUCKET_NAME,
-            // key: `products/${productId}/photo_${index + 1}.png`,
-            body: data,
-            // contentType: element.mimetype,
-          });
-          return {
-            secure_url: upload.Location,
-          };
-        })
-      );
-
-      let imgArray = await imgArrayRes;
-
-      const product = await Product.create({
-        // _id: productId,
-        photos: imgArray,
-        ...fields,
-      });
-
-      if (!product) {
+      if (!products) {
         throw new CustomError("Product was not created", 400);
       }
       res.status(200).json({
         success: true,
-        product,
+        products,
       });
     } catch (error) {
       return res.status(500).json({
@@ -90,7 +83,7 @@ export const addProduct = asyncHandler(async (req, res) => {
  * @description User and admin can get all the products
  * @return Products Object
  ****************************************************/
-export const getAllProducts = asyncHandler(async (req, res) => {
+exports.getAllProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({});
 
   if (!products) {
@@ -105,12 +98,12 @@ export const getAllProducts = asyncHandler(async (req, res) => {
 
 /***************************************************
  * @GET_PRODUCT_BY_ID
- * @route http://localhost:4000/api/product
+ * @route http://localhost:4000/api/product/:id
  * @description Controller used for gatting single product details
  * @description User and admin can get single product details
  * @return Products Object
  ****************************************************/
-export const getProductById = asyncHandler(async (req, res) => {
+exports.getProductById = asyncHandler(async (req, res) => {
   const { id: productId } = req.params;
   const product = await Product.findById(productId);
 

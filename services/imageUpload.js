@@ -1,14 +1,25 @@
-// import Cloudinary from "../config/cloudinary.config";
 const cloudinary = require("cloudinary").v2;
+const configs = require("../config/index");
 
-export const uploadFile = async ({ body }) => {
-  return await cloudinary.uploader
+exports.uploadFile = async (body) => {
+  cloudinary.config({
+    cloud_name: configs.CLOUDINARY_CLOUD_NAME,
+    api_key: configs.CLOUDINARY_API_KEY,
+    api_secret: configs.CLOUDINARY_API_SECREAT,
+    secure: true,
+  });
+  await cloudinary.uploader
     .upload(body)
-    .then((result) => console.log("Success", JSON.stringify(result, null, 2)))
+    .then((result) => {
+      // console.log("Success", result.secure_url);
+      // console.log(result.secure_url);
+      url = result.secure_url;
+    })
     .catch((error) => console.log("Error", JSON.stringify(error, null, 2)));
+  return `${url}`;
 };
 
-export const deleteFile = async ({ body }) => {
+exports.deleteFile = async ({ body }) => {
   return await cloudinary.uploader
     .destroy(body)
     .then((result) => console.log(result));
