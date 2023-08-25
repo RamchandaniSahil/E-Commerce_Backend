@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import OrderStatus from "../utils/orderStatus";
+const mongoose = require("mongoose");
+const OrderStatus = require("../utils/orderStatus");
 
 const orderSchema = new mongoose.Schema(
   {
@@ -48,4 +48,4 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Order", orderSchema);
+module.exports = mongoose.model("Order", orderSchema);
