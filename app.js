@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const authRoute = require("./routes/auth.route");
 const collectionRoute = require("./routes/collection.route");
 const productRoute = require("./routes/product.route");
+const couponRoute = require("./routes/coupon.route");
 
 const app = express();
 
@@ -18,5 +19,6 @@ app.use(morgan("tiny"));
 app.use("/api/auth", authRoute);
 app.use("/api/collection", collectionRoute);
 app.use("/api/product", productRoute);
+app.use("/api/coupon", couponRoute);
 
 module.exports = app;
